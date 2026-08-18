@@ -1,25 +1,97 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh">
-<head><meta charset="utf-8"><title>夜魔文化 · 专辑发行</title></head>
+<head>
+  <meta charset="UTF-8" />
+  <title>夜魔文化 · 音乐发行平台</title>
+  <link rel="stylesheet" href="style-ui.css" />
+</head>
 <body>
-  <h1>夜魔文化 音乐发行后台</h1>
-  <p>厂牌锁定：<b>夜魔文化</b></p>
-  <input id="title" placeholder="专辑名"><br>
-  <input id="albumMid" placeholder="QQ音乐 albumMid（可选）"><br>
-  <input id="audio" placeholder="音频 URL"><br>
-  <input id="cover" placeholder="封面 URL"><br>
-  <input id="receiver" placeholder="接收人邮箱/账号"><br>
-  <button onclick="release()">发行给别人</button>
-  <pre id="out"></pre>
-  <script>
-  async function release(){
-    const body = {
-      title: title.value, albumMid: albumMid.value,
-      audioUrl: audio.value, coverUrl: cover.value, receiverEmail: receiver.value
-    };
-    const r = await fetch('/api/release',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    out.textContent = JSON.stringify(await r.json(), null, 2);
-  }
-  </script>
+
+<!-- 顶部导航 -->
+<div class="nav">
+  <div class="logo">🩸 夜魔文化 · YEMO MUSIC</div>
+  <div class="brand">Yemo Culture Release Platform</div>
+</div>
+
+<!-- 主内容 -->
+<div class="main">
+  <div class="section-title">已发行专辑</div>
+
+  <div class="album-grid" id="albumList">
+    <!-- JS 动态渲染 -->
+  </div>
+</div>
+
+<!-- 悬浮发行按钮 -->
+<button class="fab" onclick="openModal()">＋</button>
+
+<!-- 发行弹窗 -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h2 style="margin-top:0;">发行新专辑</h2>
+
+    <input id="ui-title" placeholder="专辑名称" />
+    <input id="ui-audio" placeholder="音频地址" />
+    <input id="ui-cover" placeholder="封面地址" />
+    <input id="ui-receiver" placeholder="接收人邮箱 / 账号" />
+
+    <button onclick="release()">确认发行</button>
+  </div>
+</div>
+
+<div class="footer">© 2026 夜魔文化 Yemo Culture. All Rights Reserved.</div>
+
+<script>
+function openModal() {
+  document.getElementById("modal").classList.add("active");
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("active");
+}
+
+async function release() {
+  const body = {
+    title: document.getElementById("ui-title").value,
+    audioUrl: document.getElementById("ui-audio").value,
+    coverUrl: document.getElementById("ui-cover").value,
+    receiverEmail: document.getElementById("ui-receiver").value
+  };
+
+  const res = await fetch("/api/release", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+  alert("发行成功\n厂牌：夜魔文化\n领取链接：" + data.claimUrl);
+  closeModal();
+  loadAlbums();
+}
+
+async function loadAlbums() {
+  const res = await fetch("/api/releases");
+  const data = await res.json();
+
+  const grid = document.getElementById("albumList");
+  grid.innerHTML = "";
+
+  data.forEach(a => {
+    grid.innerHTML += `
+      <div class="album-card">
+        <img src="${a.coverUrl}" />
+        <div class="album-info">
+          <h3>${a.title}</h3>
+          <span>夜魔文化 · ${a.receiver}</span>
+        </div>
+      </div>
+    `;
+  });
+}
+
+loadAlbums();
+</script>
+
 </body>
 </html>
