@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh">
+<head><meta charset="utf-8"><title>夜魔文化 · 专辑发行</title></head>
+<body>
+  <h1>夜魔文化 音乐发行后台</h1>
+  <p>厂牌锁定：<b>夜魔文化</b></p>
+  <input id="title" placeholder="专辑名"><br>
+  <input id="albumMid" placeholder="QQ音乐 albumMid（可选）"><br>
+  <input id="audio" placeholder="音频 URL"><br>
+  <input id="cover" placeholder="封面 URL"><br>
+  <input id="receiver" placeholder="接收人邮箱/账号"><br>
+  <button onclick="release()">发行给别人</button>
+  <pre id="out"></pre>
+  <script>
+  async function release(){
+    const body = {
+      title: title.value, albumMid: albumMid.value,
+      audioUrl: audio.value, coverUrl: cover.value, receiverEmail: receiver.value
+    };
+    const r = await fetch('/api/release',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    out.textContent = JSON.stringify(await r.json(), null, 2);
+  }
+  </script>
+</body>
+</html>
